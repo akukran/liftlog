@@ -105,6 +105,15 @@ select,.field input{height:48px;border-radius:12px;border:1px solid var(--line);
 .mrow{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);font:inherit;padding:12px 2px;text-align:left;cursor:pointer}
 .mrow .nm{font-weight:600}.meter{grid-column:1/3;height:6px;border-radius:3px;background:var(--fld);overflow:hidden}.meter b{display:block;height:100%;background:var(--tc)}
 .note{font-size:13px;color:var(--mut);margin-top:10px}
+.hh{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 0 14px;flex-wrap:wrap}
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.cal-head .x:disabled{opacity:.3;cursor:default}
+.yr{font:700 36px/1 "Barlow Condensed"}
+.months{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:20px 18px;margin-top:6px}
+.mon h4{margin:0 0 8px;font:700 17px "Barlow Condensed";display:flex;justify-content:space-between;gap:6px}.mon h4 span{font:500 13px Barlow;color:var(--mut)}
+.dots{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;align-items:center}
+.wd{font:600 11px Barlow;color:var(--mut);text-align:center}
+.dot{display:block;width:100%;aspect-ratio:1;border-radius:50%;background:var(--fld);border:0;padding:0}
+.dot.fut{opacity:.35}.dot.on{background:#2f7df6;box-shadow:0 0 8px #2f7df699;cursor:pointer}.dot.today{outline:2px solid var(--ink);outline-offset:1px}
 textarea{width:100%;min-height:200px;border-radius:12px;border:1px solid var(--line);background:var(--fld);color:var(--ink);font:13px/1.4 ui-monospace,monospace;padding:10px}
 @media(max-width:380px){.hd,.set{grid-template-columns:22px minmax(0,1.1fr) minmax(0,1fr) minmax(0,.85fr) 44px;gap:5px}.prev{font-size:14px}.start h2{font-size:38px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -215,16 +224,35 @@ function exCard(e,i){
   <div class="seg" role="group" aria-label="Unit">${['kg','lb'].map(k=>`<button data-act="unit" data-u="${k}" aria-pressed="${u===k}">${k}</button>`).join('')}</div></div>
   <div class="hd"><span>Set</span><span>Previous</span><span>${u}</span><span>Reps</span><span></span></div>${rows}
   <div class="exfoot"><button class="btn sm" data-act="addset">+ Add set</button><button class="btn sm" data-act="rmset" ${e.sets.length?'':'disabled'}>− Remove set</button><button class="btn sm danger" data-act="rmex">Remove</button></div></section>`}
-function vHistory(){
-  if(!S.workouts.length)return `<h2 class="sub">History</h2><div class="card empty">Finished workouts land here, with every set you logged.</div>`;
+function vList(){
+  if(!S.workouts.length)return `<div class="card empty">Finished workouts land here, with every set you logged.</div>`;
   const U=S.settings.unit;let mon='';
-  return `<h2 class="sub">History</h2>`+S.workouts.map(w=>{
+  return S.workouts.map(w=>{
     const m=new Date(w.start).toLocaleDateString('en-GB',{month:'long',year:'numeric'});const hd=m!==mon?(mon=m,`<p class="mhd">${m}</p>`):'';
     const vol=w.ex.reduce((t,e)=>t+e.sets.reduce((a,s)=>a+(conv(s.v||0,e.unit,U))*s.r,0),0);
     const mins=w.end?Math.max(1,Math.round((w.end-w.start)/60000)):0;
     return hd+`<article class="card hist"><h3>${esc(w.name)}</h3><p class="mut" style="font-size:14px">${fdate(w.start)}${mins?` · ${mins} min`:''} · ${Math.round(vol).toLocaleString('en-GB')} ${U} volume</p>
     <ul class="hl">${w.ex.map(e=>{const b=bestSet(e);return `<li><span>${e.sets.length} × <button class="exname" style="font:600 16px Barlow" data-act="info" data-id="${e.eid}">${esc(exById(e.eid).name)}</button></span><span class="mut">${b?setTxt(b,e.unit,e.unit)+(b.v!=null?' '+e.unit:''):''}</span></li>`}).join('')}</ul>
     <div class="row"><button class="btn sm" data-act="repeat" data-id="${w.id}">Repeat</button><button class="btn sm ghost danger" data-act="delw" data-id="${w.id}">Delete</button></div></article>`}).join('')}
+let histView='cal',calY=new Date().getFullYear();
+const MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const dkey=t=>{const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const wkStart=t=>{const d=new Date(t);d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime()};
+function vHistory(){return `<div class="hh"><h2 class="sub" style="margin:0">History</h2><div class="seg">${[['cal','Calendar'],['list','Workouts']].map(([k,l])=>`<button data-act="hv" data-v="${k}" aria-pressed="${histView===k}" style="padding:0 12px">${l}</button>`).join('')}</div></div>`+(histView==='cal'?vCal():vList())}
+function vCal(){const days={};S.workouts.forEach(w=>{const k=dkey(w.start);(days[k]=days[k]||[]).push(w)});
+  const now=new Date(),tk=dkey(now),cy=now.getFullYear();const ks=Object.keys(days);
+  const minY=Math.min(cy,...S.workouts.map(w=>new Date(w.start).getFullYear()));
+  const yr=ks.filter(k=>k.startsWith(calY+'-')).length,mo=ks.filter(k=>k.startsWith(tk.slice(0,7))).length;
+  const weeks=new Set(S.workouts.map(w=>wkStart(w.start)));let st=0,cur=wkStart(Date.now());if(!weeks.has(cur))cur=wkStart(cur-3*864e5);while(weeks.has(cur)){st++;cur=wkStart(cur-3*864e5)}
+  const months=MON.map((mn,m)=>{const lead=(new Date(calY,m,1).getDay()+6)%7,n=new Date(calY,m+1,0).getDate();let c=0,cells='<i></i>'.repeat(lead);
+    for(let d=1;d<=n;d++){const k=calY+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');const on=!!days[k];if(on)c++;const fut=k>tk;
+      cells+=on?`<button class="dot on${k===tk?' today':''}" data-act="day" data-d="${k}" aria-label="${d} ${mn}, gym day"></button>`:`<i class="dot${fut?' fut':''}${k===tk?' today':''}"></i>`}
+    return `<div class="mon"><h4>${mn.slice(0,3)}<span>${c?c+' day'+(c>1?'s':''):''}</span></h4><div class="dots">${['M','T','W','T','F','S','S'].map(x=>`<b class="wd">${x}</b>`).join('')}${cells}</div></div>`}).join('');
+  return `<section class="card"><div class="cal-head"><button class="x" data-act="cy" data-d="-1" ${calY<=minY?'disabled':''} aria-label="Previous year">‹</button><span class="yr">${calY}</span><button class="x" data-act="cy" data-d="1" ${calY>=cy?'disabled':''} aria-label="Next year">›</button></div>
+  <div class="stats"><div><b>${yr}</b><span>Gym days in ${calY}</span></div><div><b>${mo}</b><span>This month</span></div><div><b>${st}</b><span>Week streak</span></div></div>
+  <div class="months">${months}</div><p class="note">Blue dots are days you trained — tap one to see the workout.</p></section>`}
+function openDay(k){const ws=S.workouts.filter(w=>dkey(w.start)===k);if(!ws.length)return;
+  openSheet(`<div class="ph"><h2>${fdate(ws[0].start)}</h2><button class="x" data-act="close" aria-label="Close">✕</button></div>`+ws.map(w=>`<div class="card"><h3>${esc(w.name)}</h3><ul class="hl">${w.ex.map(e=>`<li><span>${esc(exById(e.eid).name)}</span><span class="mut">${e.sets.map(s=>setTxt(s,e.unit,e.unit)).join(', ')}${e.sets.some(s=>s.v!=null)?' '+e.unit:''}</span></li>`).join('')}</ul><button class="btn sm" data-act="repeat" data-id="${w.id}">Repeat workout</button></div>`).join(''))}
 let libQ='',libM='All',pickQ='',pickM='All',pickSel=new Set(),pickFrom=null;
 const chips=(cur,act)=>{const rec=S.workouts.length?['Recent']:[];return [...rec,'All',...MUSCLES,...(S.custom.length?['Custom']:[])].map(m=>`<button class="chip" data-act="${act}" data-m="${m}" aria-pressed="${m===cur}">${m}</button>`).join('')};
 function filt(q,m){const ws=q.trim().toLowerCase().split(/\s+/).filter(Boolean);let L=ALL();
@@ -363,7 +391,7 @@ document.addEventListener('click',async ev=>{
   switch(a){
   case 'tab':tab=b.dataset.tab;render();scrollTo(0,0);break;
   case 'start':startWorkout(null);break;
-  case 'repeat':{if(A&&!await ask('You already have a workout in progress. Replace it?','Replace'))break;const w=S.workouts.find(w=>w.id===b.dataset.id);if(w)startWorkout(w);break}
+  case 'repeat':{if(A&&!await ask('You already have a workout in progress. Replace it?','Replace'))break;const w=S.workouts.find(w=>w.id===b.dataset.id);if(w){closeSheet();startWorkout(w)}break}
   case 'add':openPicker();break;
   case 'unit':{const e=A.ex[i],u=b.dataset.u;if(e.unit===u)break;e.sets.forEach(s=>{if(s.v!=null)s.v=r1(conv(s.v,e.unit,u))});e.unit=u;saveActive();render();break}
   case 'fill':{const e=A.ex[i],p=lastFor(e.eid,A.id);const ps=p&&p.e.sets[j];if(!ps)break;const s=e.sets[j];s.v=ps.v==null?null:r1(conv(ps.v,p.e.unit,e.unit));s.r=ps.r;saveActive();render();break}
@@ -398,6 +426,9 @@ document.addEventListener('click',async ev=>{
     S.custom.push(x);saveCustom();
     if(pickFrom==='pick'&&S.active){addEx(x.id);saveActive();closeSheet();render();toast('Added to workout')}else{closeSheet();render();toast('Exercise created')}break}
   case 'delcustom':if(await ask('Delete this custom exercise? Past sets stay in your history.','Delete')){S.custom=S.custom.filter(x=>x.id!==b.dataset.id);saveCustom();render()}break;
+  case 'hv':histView=b.dataset.v;render();break;
+  case 'cy':calY+=+b.dataset.d;render();break;
+  case 'day':openDay(b.dataset.d);break;
   case 'muscle':openMuscle(b.dataset.m);break;
   case 'bwu':{const st=S.settings,u=b.dataset.u;if(st.bwu===u)break;if(st.bw)st.bw=r1(conv(st.bw,st.bwu,u));st.bwu=u;saveSettings();render();break}
   case 'sex':S.settings.sex=b.dataset.s;saveSettings();render();break;
