@@ -124,6 +124,16 @@ select,.field input{height:48px;border-radius:12px;border:1px solid var(--line);
 .meal{padding:12px 0;border-top:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center}.meal p{font-size:14px;color:var(--mut)}
 textarea.food{min-height:96px;font:16px/1.45 Barlow;margin-top:10px}
 .bodies.one{grid-template-columns:minmax(0,1fr)}.bodies.one svg{max-width:270px}
+.demobox{flex-basis:100%;padding:4px 4px 14px;display:grid;grid-template-columns:minmax(0,150px) minmax(0,1fr);gap:12px;align-items:center}
+.demo{width:100%;height:auto;max-height:200px;display:block}
+.demo polyline{fill:none;stroke:var(--ink);stroke-width:7;stroke-linecap:round;stroke-linejoin:round}.demo .far polyline{opacity:.45}
+.demo .eq{stroke:var(--mut);stroke-width:4;stroke-linecap:round}.demo .thin{stroke-width:2}.demo .pl{fill:#2f7df6}.demo .fl{stroke:var(--line);stroke-width:3}
+.demo .bn{fill:#3a3f48}.demo .bnl{fill:none;stroke:#3a3f48;stroke-width:8;stroke-linecap:round;stroke-linejoin:round}.demo .hd{fill:var(--ink)}
+.tips{margin:0;padding-left:18px;font-size:14px;color:var(--mut);display:grid;gap:6px}
+.lrow{display:flex;flex-wrap:wrap;align-items:stretch;border-bottom:1px solid var(--line)}.lib .lrow>button:first-child{flex:1;width:auto;border-bottom:0}
+.lib .dbtn{width:46px;flex:none;display:grid;place-items:center;border:0;padding:0;background:none;color:var(--mut);cursor:pointer;min-height:56px}
+.dbtn svg{width:20px;height:20px;transition:transform .2s}.dbtn[aria-expanded=true] svg{transform:rotate(90deg);color:#4ea1ff}
+.sheetdemo .demobox{background:var(--fld);border-radius:14px;padding:12px;margin:12px 0}
 textarea{width:100%;min-height:200px;border-radius:12px;border:1px solid var(--line);background:var(--fld);color:var(--ink);font:13px/1.4 ui-monospace,monospace;padding:10px}
 @media(max-width:380px){.hd,.set{grid-template-columns:22px minmax(0,1.1fr) minmax(0,1fr) minmax(0,.85fr) 44px;gap:5px}.prev{font-size:14px}.start h2{font-size:38px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -271,7 +281,7 @@ function filt(q,m){const ws=q.trim().toLowerCase().split(/\s+/).filter(Boolean);
   return L.filter(x=>(m==='All'||m==='Recent'||(m==='Custom'?x.custom:x.muscle===m))&&ws.every(w=>(x.name+' '+x.equip+' '+x.muscle).toLowerCase().includes(w)))}
 function vLib(){return `<h2 class="sub">Exercises</h2><input id="libq" class="search" type="search" placeholder="Search ${ALL().length} exercises" value="${esc(libQ)}" autocomplete="off"><div class="chips" id="lchips">${chips(libM,'lm')}</div><ul class="lib" id="llist"></ul>
   <div style="margin-top:16px"><button class="btn wide ghost" data-act="newcustom">+ Create custom exercise</button></div>`}
-function drawLib(){const L=filt(libQ,libM);const R=bwKg()&&S.settings.sex?rankAll().ex:{};$('llist').innerHTML=L.map(x=>{const l=lastFor(x.id);return `<li><button data-act="info" data-id="${x.id}"><span class="nm">${esc(x.name)}</span><span class="sm">${esc(x.muscle)} · ${esc(x.equip)}${R[x.id]?' · '+badge(R[x.id].s):''}</span><span class="rt">${l?setTxt(bestSet(l.e),l.e.unit,l.e.unit)+(bestSet(l.e).v!=null?' '+l.e.unit:'')+'<br>'+fdate(l.w.start):''}</span></button></li>`}).join('')||`<li class="empty">No matches.</li>`}
+function drawLib(){const L=filt(libQ,libM);const R=bwKg()&&S.settings.sex?rankAll().ex:{};$('llist').innerHTML=L.map(x=>{const l=lastFor(x.id);return `<li class="lrow"><button data-act="info" data-id="${x.id}"><span class="nm">${esc(x.name)}</span><span class="sm">${esc(x.muscle)} · ${esc(x.equip)}${R[x.id]?' · '+badge(R[x.id].s):''}</span><span class="rt">${l?setTxt(bestSet(l.e),l.e.unit,l.e.unit)+(bestSet(l.e).v!=null?' '+l.e.unit:'')+'<br>'+fdate(l.w.start):''}</span></button><button class="dbtn" data-act="demo" data-id="${x.id}" aria-expanded="${openDemo===x.id}" aria-label="Show how to do ${esc(x.name)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>${openDemo===x.id?demoBox(x):''}</li>`}).join('')||`<li class="empty">No matches.</li>`}
 function vSettings(){const st=S.settings;
   return `<h2 class="sub">Settings</h2><section class="card"><h3>Weight unit</h3><p class="mut">Default for new exercises and workout totals. You can still switch any exercise mid-workout.</p>
   <div class="seg" style="margin-top:12px">${['kg','lb'].map(k=>`<button data-act="setunit" data-u="${k}" aria-pressed="${st.unit===k}" style="min-width:80px">${k==='kg'?'Kilograms':'Pounds'}</button>`).join('')}</div>
@@ -287,6 +297,88 @@ function render(){document.querySelectorAll('.tabs button').forEach(b=>b.setAttr
   if(tab==='lib')drawLib();tickElapsed()}
 function tickElapsed(){const el=$('elapsed');if(el&&S.active){const s=Math.floor((Date.now()-S.active.start)/1000);el.textContent=(s>=3600?Math.floor(s/3600)+':'+String(Math.floor(s/60)%60).padStart(2,'0')+':'+String(s%60).padStart(2,'0'):mmss(s))}}
 setInterval(tickElapsed,1000);
+
+/* ---------- form demos ---------- */
+const DL={t:58,n:13,u:29,f:27,th:38,sh:38};
+const DEMO={
+ squat:{A:{h:[100,85],t:5,hd:{s:[6,2]},an:[104,160]},B:{h:[72,128],t:42},pr:['plate'],tips:['Brace your core and keep your chest up','Push your knees out in line with your toes','Sit to at least parallel, then drive up through your whole foot']},
+ hinge:{A:{h:[100,85],t:3,hd:[104,120],an:[102,160]},B:{h:[76,108],t:72,hd:[118,148]},pr:['plate'],tips:['Keep the bar close to your legs','Push your hips back with a flat back','Squeeze your glutes to stand tall']},
+ bench:{A:{h:[72,104],t:90,hd:{s:[0,-54]},an:[40,160]},B:{hd:{s:[-4,-12]}},eb:-1,kb:1,pr:['bench','plate'],tips:['Squeeze your shoulder blades together','Lower to mid-chest with elbows at about 45°','Keep feet planted and press back up over your shoulders']},
+ ohp:{A:{h:[100,85],t:0,hd:{s:[10,4]},an:[100,160]},B:{hd:{s:[2,-55]}},pr:['plate'],tips:['Squeeze your glutes so you don’t lean back','Press straight up, moving your head out of the way','Lock out with the weight over your mid-foot']},
+ row:{A:{h:[88,96],t:62,hd:[136,124],an:[100,160]},B:{hd:[114,100]},pr:['plate'],tips:['Hinge forward with a flat back','Pull to your lower ribs, driving elbows back','Lower under control without rounding']},
+ seatedrow:{A:{h:[66,136],t:-4,hd:[132,100],an:[140,152]},B:{t:-12,hd:[94,104]},pr:['seat','cable:[198,102]'],tips:['Sit tall with your chest up','Pull to your stomach and squeeze your shoulder blades','Let your arms stretch forward slowly']},
+ pulldown:{A:{h:[96,124],t:-6,hd:{s:[4,-56]},an:[146,160]},B:{hd:{s:[14,-2]}},pr:['seat2','cable:[102,-44]','hbar'],tips:['Lean back slightly, chest up','Pull the bar down to your upper chest','Control it back up to a full stretch']},
+ pullup:{A:{h:[100,84],t:0,hd:[102,-30],an:{h:[-14,62]}},B:{h:[100,52]},pr:['bar'],tips:['Start from a dead hang','Pull your chest up towards the bar','Lower all the way down every rep']},
+ curl:{A:{h:[100,85],t:0,hd:{s:[4,54]},an:[100,160]},B:{hd:{s:[24,6]}},pr:['db'],tips:['Keep your elbows pinned to your sides','Curl without swinging your body','Lower slowly to full extension']},
+ pushdown:{A:{h:[100,86],t:8,hd:{s:[22,16]},an:[100,160]},B:{hd:{s:[14,54]}},pr:['cable:[150,-44]','hbar'],tips:['Elbows tucked at your sides','Push down until your arms are straight','Only let your forearms come back up to about 90°']},
+ ohext:{A:{h:[100,85],t:0,hd:{s:[2,-54]},an:[100,160]},B:{hd:{s:[-18,-12]}},pr:['db'],tips:['Keep your elbows pointing forward','Lower behind your head for a deep stretch','Extend fully without flaring your elbows']},
+ dip:{A:{h:[100,86],t:3,hd:[106,92],an:{h:[-16,60]}},B:{h:[100,116],t:14},pr:['dipbar'],tips:['Shoulders down, away from your ears','Lower until your upper arms are about parallel','Press back up to straight arms']},
+ frontraise:{A:{h:[100,85],t:0,hd:{s:[4,55]},an:[100,160]},B:{hd:{s:[55,2]}},eb:-1,pr:['db'],tips:['Stand tall without swinging','Raise to shoulder height in front of you','Lower under control']},
+ lunge:{A:{h:[96,85],t:2,hd:{s:[2,54]},an:[126,160],an2:[64,160]},B:{h:[94,122]},pr:['db'],tips:['Take a long enough step that your front shin stays fairly upright','Drop your back knee towards the floor','Push through your front heel to stand']},
+ legpress:{A:{h:[62,128],t:-60,hd:{s:[22,30]},an:[116,98]},B:{an:[150,64]},pr:['lpseat','plat'],tips:['Feet shoulder width on the platform','Lower until your knees reach about 90°','Press without locking your knees out']},
+ legext:{A:{h:[86,124],t:-8,hd:[92,128],an:[120,160]},B:{an:[160,116]},pr:['seat3','pad'],tips:['Line your knees up with the machine’s pivot','Extend fully and squeeze your quads','Lower slowly']},
+ legcurl:{A:{h:[104,104],t:-90,hd:[30,112],an:[178,106]},B:{an:[134,62]},kb:1,pr:['bench','pad'],tips:['Keep your hips pressed into the pad','Curl your heels towards your glutes','Lower all the way under control']},
+ calf:{A:{h:[100,85],t:0,hd:{s:[4,54]},an:[100,160]},B:{h:[100,73],an:[100,148]},toe:1,pr:['db'],tips:['Get a full stretch at the bottom','Rise as high as you can onto your toes','Pause at the top']},
+ thrust:{A:{h:[110,150],t:-66,hd:{s:[12,6]},an:[152,160]},B:{h:[112,118],t:-82},pr:['block','hipplate'],tips:['Upper back on the bench, feet flat','Drive your hips up until your body is flat','Squeeze your glutes at the top with your chin tucked']},
+ crunch:{A:{h:[110,150],t:-88,hd:{s:[8,-10]},an:[160,158]},B:{t:-52},pr:[],tips:['Curl your ribs towards your hips','Breathe out as you crunch','Lower slowly without pulling on your neck']},
+ legraise:{A:{h:[100,84],t:0,hd:[102,-30],an:{h:[4,74]}},B:{an:{h:[72,-4]}},pr:['bar'],tips:['Hang still with no swinging','Raise your legs using your abs','Lower slowly to the start']},
+ hold:{A:{h:[96,135],t:84,hd:{s:[26,30]},an:[30,158]},B:{h:[96,132]},pr:[],T:3200,tips:['Straight line from head to heels','Brace your abs and squeeze your glutes','Breathe steadily and hold']},
+ pushup:{A:{h:[90,126],t:68,hd:[150,158],an:[28,158]},B:{h:[90,143],t:80},pr:[],tips:['Hands under your shoulders, body straight','Lower your chest to just above the floor','Push the floor away to lock out']},
+ clean:{A:{h:[76,108],t:68,hd:[118,148],an:[102,160]},B:{h:[100,85],t:-2,hd:[112,30]},pr:['plate'],T:2000,tips:['Start in a deadlift position','Explode up by driving your hips forward','Catch the bar on your shoulders with elbows high']},
+ swing:{A:{h:[80,104],t:66,hd:[98,136],an:[102,160]},B:{h:[100,85],t:0,hd:[154,30]},pr:['kb'],T:1800,tips:['Hinge at the hips, don’t squat','Snap your hips forward to swing the weight','Let it float to chest height with relaxed arms']},
+ carry:{A:{h:[100,85],t:0,hd:{s:[4,55]},an:[112,160],an2:[88,160]},B:{h:[100,83],an:[88,160],an2:[112,160]},pr:['db'],T:1400,tips:['Stand tall with your shoulders back','Take short, quick steps','Grip hard and brace your core']},
+ kick:{A:{h:[100,86],t:24,hd:{s:[22,30]},an:[102,160],an2:[100,160]},B:{an2:[42,128]},pr:['cable2:[8,152]'],tips:['Brace and keep your back still','Drive your leg back with your glute','Don’t arch your lower back']},
+ lateral:{F:1,A:{sy:0,hL:[86,118],hR:[114,118],aL:[92,160],aR:[108,160]},B:{hL:[42,28],hR:[158,28]},pr:['db'],tips:['Keep a slight bend in your elbows','Lead with your elbows out to the side','Stop at shoulder height and lower slowly']},
+ fly:{F:1,A:{sy:0,hL:[42,34],hR:[158,34],aL:[92,160],aR:[108,160]},B:{hL:[95,62],hR:[105,62]},pr:['fcable'],tips:['Keep a soft bend in your elbows','Bring your hands together in a wide arc','Feel the stretch across your chest on the way back']},
+ shrug:{F:1,A:{sy:0,hL:[84,116],hR:[116,116],aL:[92,160],aR:[108,160]},B:{sy:-9,hL:[84,107],hR:[116,107]},pr:['db'],tips:['Arms straight, let the weight hang','Lift your shoulders straight up to your ears','Pause, then lower fully']},
+ uprow:{F:1,A:{sy:0,hL:[94,116],hR:[106,116],aL:[92,160],aR:[108,160]},B:{hL:[94,24],hR:[106,24]},pr:['fbar'],tips:['Grip about shoulder width','Lead with your elbows up to chest height','Keep the weight close to your body']},
+ abduct:{F:1,A:{sy:0,hL:[86,118],hR:[114,118],aL:[92,160],aR:[108,160]},B:{aR:[146,148]},pr:[],tips:['Stand or sit tall','Push your leg out with control','Return slowly without letting the weight slam']}};
+const DRULES=[[/calf|tibialis/i,'calf'],[/leg curl|nordic|glute-ham/i,'legcurl'],[/leg extension|single-leg extension/i,'legext'],[/leg press/i,'legpress'],[/hip thrust|glute bridge|frog pump/i,'thrust'],[/glute kickback|cable glute/i,'kick'],[/abduction|adduction/i,'abduct'],[/rear delt|reverse pec|face pull/i,'row'],[/fly|pec deck|crossover/i,'fly'],[/incline|decline/i,'bench'],[/lateral raise|y-raise/i,'lateral'],[/front raise/i,'frontraise'],[/shrug/i,'shrug'],[/upright row|high pull/i,'uprow'],[/pull-up|chin-up|dead hang/i,'pullup'],[/pulldown|pullover/i,'pulldown'],[/row/i,'ROW'],[/deadlift|romanian|stiff-leg|good morning|rack pull|pull-through|back extension|hyperextension/i,'hinge'],[/swing/i,'swing'],[/clean|snatch|get-up|man maker|wall ball|thruster/i,'clean'],[/lunge|split squat|step-up|curtsy/i,'lunge'],[/wall sit|plank|hollow|l-sit|dead bug|superman|dragon|battle/i,'hold'],[/squat|jump/i,'squat'],[/dip/i,'dip'],[/bench|chest press|floor press|spoto|squeeze press|jm press|incline press|decline press/i,'bench'],[/handstand/i,'ohp'],[/push-up|burpee|mountain/i,'pushup'],[/pallof|woodchop|rotation|twist|crunch|sit-up|rollout/i,'crunch'],[/skull|overhead.*extension|tate|cross-body cable/i,'ohext'],[/press|handstand|pike|jerk/i,'ohp'],[/pushdown|kickback|tricep/i,'pushdown'],[/curl|21s|wrist roller|gripper/i,'curl'],[/carry|farmer|sled|pinch/i,'carry'],[/leg raise|knee raise|toes-to-bar/i,'legraise']];
+const DMUS={Chest:'bench',Back:'row',Shoulders:'ohp',Traps:'shrug',Biceps:'curl',Triceps:'pushdown',Forearms:'curl',Quads:'squat',Hamstrings:'hinge',Glutes:'thrust',Calves:'calf',Core:'crunch','Full body':'clean'};
+function demoKey(x){for(const[re,k]of DRULES)if(re.test(x.name))return k==='ROW'?(/seated|cable|machine|low row|high row|iso-lateral|hammer|plate-loaded/i.test(x.name)?'seatedrow':'row'):k;return DMUS[x.muscle]||'curl'}
+function ik(a,b,l1,l2,s){let dx=b[0]-a[0],dy=b[1]-a[1],d=Math.hypot(dx,dy)||.001;const m=l1+l2-.01;if(d>m){b=[a[0]+dx/d*m,a[1]+dy/d*m];d=m}
+  const base=Math.atan2(b[1]-a[1],b[0]-a[0]),c=Math.acos(Math.max(-1,Math.min(1,(l1*l1+d*d-l2*l2)/(2*l1*d)))),g=base+s*c;return[[a[0]+l1*Math.cos(g),a[1]+l1*Math.sin(g)],b]}
+function lp(a,b,k){if(typeof a==='number')return a+((b??a)-a)*k;if(Array.isArray(a))return a.map((v,i)=>lp(v,b?b[i]:v,k));if(a&&typeof a==='object'){const o={};for(const q in a)o[q]=lp(a[q],b?b[q]:undefined,k);return o}return a}
+const pl=(...p)=>`<polyline points="${p.map(q=>q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ')}"/>`;
+function demoFrame(D,k){const B={...D.A,...D.B},p=lp(D.A,B,k);let s='<line class="fl" x1="0" y1="162" x2="200" y2="162"/>',top='';const pr=D.pr||[];
+  const has=n=>pr.find(x=>x===n||x.startsWith(n+':')),arg=n=>JSON.parse(has(n).split(':')[1]);
+  if(D.F){const hy=85,ty=hy-DL.t+p.sy,sL=[84,ty],sR=[116,ty],hL=[92,hy],hR=[108,hy];
+    const[eL,aL]=ik(sL,p.hL,DL.u,DL.f,1),[eR,aR]=ik(sR,p.hR,DL.u,DL.f,-1),[kL,fL]=ik(hL,p.aL,DL.th,DL.sh,1),[kR,fR]=ik(hR,p.aR,DL.th,DL.sh,-1);
+    if(has('fcable'))s+=`<line class="eq thin" x1="${aL[0]}" y1="${aL[1]}" x2="6" y2="-40"/><line class="eq thin" x1="${aR[0]}" y1="${aR[1]}" x2="194" y2="-40"/>`;
+    s+=pl([100,hy],[100,ty])+pl(sL,sR)+pl(hL,hR)+pl(sL,eL,aL)+pl(sR,eR,aR)+pl(hL,kL,fL,[fL[0]-8,fL[1]])+pl(hR,kR,fR,[fR[0]+8,fR[1]])+`<circle class="hd" cx="100" cy="${ty-14}" r="10"/>`;
+    if(has('db'))for(const h of[aL,aR])s+=`<rect class="pl" x="${h[0]-5}" y="${h[1]-9}" width="10" height="18" rx="3"/>`;
+    if(has('fbar'))s+=`<line class="eq" x1="${aL[0]-14}" y1="${aL[1]}" x2="${aR[0]+14}" y2="${aR[1]}"/><circle class="pl" cx="${aL[0]-16}" cy="${aL[1]}" r="9"/><circle class="pl" cx="${aR[0]+16}" cy="${aR[1]}" r="9"/>`;
+    return s}
+  const tr=p.t*Math.PI/180,h=p.h,sh=[h[0]+DL.t*Math.sin(tr),h[1]-DL.t*Math.cos(tr)],hc=[h[0]+(DL.t+DL.n)*Math.sin(tr),h[1]-(DL.t+DL.n)*Math.cos(tr)];
+  const hand=p.hd.s?[sh[0]+p.hd.s[0],sh[1]+p.hd.s[1]]:p.hd,an=p.an.h?[h[0]+p.an.h[0],h[1]+p.an.h[1]]:p.an;
+  const[el,ha]=ik(sh,hand,DL.u,DL.f,D.eb??1),[kn,ak]=ik(h,an,DL.th,DL.sh,D.kb??-1);
+  const foot=a=>D.toe?[a[0]+15,160]:[a[0]+13,a[1]];
+  if(has('bench'))s+='<rect class="bn" x="28" y="112" width="122" height="9" rx="3"/><rect class="bn" x="40" y="121" width="6" height="40"/><rect class="bn" x="132" y="121" width="6" height="40"/>';
+  if(has('seat'))s+='<rect class="bn" x="34" y="140" width="56" height="8" rx="3"/>';
+  if(has('seat2'))s+='<rect class="bn" x="70" y="128" width="54" height="8" rx="3"/><rect class="bn" x="136" y="128" width="20" height="6" rx="3"/>';
+  if(has('seat3'))s+='<rect class="bn" x="56" y="130" width="52" height="8" rx="3"/><rect class="bn" x="52" y="66" width="8" height="72" rx="3"/>';
+  if(has('lpseat'))s+='<polyline class="bnl" points="4,92 60,138 96,138"/>';
+  if(has('block'))s+='<rect class="bn" x="14" y="112" width="44" height="50" rx="4"/>';
+  if(has('dipbar'))s+='<rect class="bn" x="96" y="94" width="32" height="7" rx="3"/><rect class="bn" x="120" y="94" width="6" height="68"/>';
+  if(has('bar'))s+='<line class="eq" x1="62" y1="-31" x2="142" y2="-31"/>';
+  if(has('cable')){const c=arg('cable');s+=`<line class="eq thin" x1="${ha[0]}" y1="${ha[1]}" x2="${c[0]}" y2="${c[1]}"/>`}
+  if(has('cable2')){const c=arg('cable2');s+=`<line class="eq thin" x1="${p.an2[0]}" y1="${p.an2[1]}" x2="${c[0]}" y2="${c[1]}"/>`}
+  if(p.an2){const[k2,a2]=ik(h,p.an2,DL.th,DL.sh,D.kb2??-1);s+=`<g class="far">${pl(h,k2,a2,foot(a2))}</g>`}
+  s+=pl(h,sh)+pl(h,kn,ak,foot(ak))+pl(sh,el,ha)+`<circle class="hd" cx="${hc[0]}" cy="${hc[1]}" r="10"/>`;
+  if(has('plate'))s+=`<line class="eq" x1="${ha[0]-4}" y1="${ha[1]}" x2="${ha[0]+4}" y2="${ha[1]}"/><circle class="pl" cx="${ha[0]}" cy="${ha[1]}" r="13"/>`;
+  if(has('hipplate'))s+=`<circle class="pl" cx="${h[0]+2}" cy="${h[1]-12}" r="13"/>`;
+  if(has('db'))s+=`<rect class="pl" x="${ha[0]-9}" y="${ha[1]-5}" width="18" height="10" rx="3"/>`;
+  if(has('kb'))s+=`<circle class="pl" cx="${ha[0]}" cy="${ha[1]+9}" r="9"/>`;
+  if(has('hbar'))s+=`<line class="eq" x1="${ha[0]-16}" y1="${ha[1]}" x2="${ha[0]+16}" y2="${ha[1]}"/>`;
+  if(has('pad'))s+=`<circle class="pl" cx="${ak[0]+2}" cy="${ak[1]+4}" r="7"/>`;
+  if(has('plat'))s+=`<line class="eq" x1="${ak[0]-14}" y1="${ak[1]-16}" x2="${ak[0]+12}" y2="${ak[1]+14}"/>`;
+  return s}
+const demoT0=performance.now();
+function demoTick(now){for(const sv of document.querySelectorAll('svg.demo')){const D=DEMO[sv.dataset.p];if(D)sv.innerHTML=demoFrame(D,(1-Math.cos(2*Math.PI*(((now-demoT0)/(D.T||2400))%1)))/2)}raf(demoTick)}
+const raf=window.requestAnimationFrame?f=>window.requestAnimationFrame(f):f=>setTimeout(()=>f(performance.now()),33);
+raf(demoTick);
+let openDemo=null;
+const demoBox=x=>{const k=demoKey(x),D=DEMO[k];return `<div class="demobox"><svg class="demo" data-p="${k}" viewBox="0 -46 200 212" role="img" aria-label="Animated demo of ${esc(x.name)}"></svg><ol class="tips">${D.tips.map(t=>`<li>${t}</li>`).join('')}</ol></div>`};
 
 /* ---------- food ---------- */
 const NUT=[['vitA','Vitamin A','µg',800],['vitC','Vitamin C','mg',80],['vitD','Vitamin D','µg',10],['vitE','Vitamin E','mg',12],['vitK','Vitamin K','µg',75],['b1','Thiamin (B1)','mg',1.1],['b2','Riboflavin (B2)','mg',1.4],['b3','Niacin (B3)','mg',16],['b6','Vitamin B6','mg',1.4],['folate','Folate','µg',200],['b12','Vitamin B12','µg',2.5],['calcium','Calcium','mg',800],['iron','Iron','mg',14],['magnesium','Magnesium','mg',375],['zinc','Zinc','mg',10],['potassium','Potassium','mg',2000],['phosphorus','Phosphorus','mg',700],['selenium','Selenium','µg',55],['iodine','Iodine','µg',150]];
@@ -419,7 +511,7 @@ function openInfo(eid){const x=exById(eid),U=S.settings.unit;const hist=S.workou
   let best=0,heavy=null,hv=0;for(const w of hist)for(const e of w.ex)if(e.eid===eid)for(const s of e.sets){const v=conv(s.v||0,e.unit,U);best=Math.max(best,e1rm(v,s.r));if(v>hv){hv=v;heavy=`${fmt(v)} × ${s.r}`}}
   const canAdd=S.active&&!S.active.ex.some(e=>e.eid===eid);const sc=exScore(eid),st=stdFor(x);
   const rk=!bwKg()||!S.settings.sex?`<p class="note">Add your bodyweight in Ranks to see this exercise's rank.</p>`:sc?`<div class="card" style="margin:0 0 12px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><div>${badge(sc.s)} <span class="mut">· ${LEVEL[tierIx(sc.s)]}</span><p class="note" style="margin-top:4px">${nextNeed(eid)}${st.approx?' Standard estimated from similar lifts.':''}</p></div></div>`:st?'':`<p class="note">This exercise isn't ranked.</p>`;
-  openSheet(`<div class="ph"><h2>${esc(x.name)}</h2><button class="x" data-act="close" aria-label="Close">✕</button></div><p class="mut">${esc(x.muscle)} · ${esc(x.equip)}${x.custom?' · custom':''}</p>
+  openSheet(`<div class="ph"><h2>${esc(x.name)}</h2><button class="x" data-act="close" aria-label="Close">✕</button></div><p class="mut">${esc(x.muscle)} · ${esc(x.equip)}${x.custom?' · custom':''}</p><div class="sheetdemo">${demoBox(x)}</div>
   <div class="stats"><div><b>${best?fmt(best):'—'}</b><span>Best est. 1RM (${U})</span></div><div><b>${heavy||'—'}</b><span>Heaviest set</span></div><div><b>${hist.length}</b><span>Sessions</span></div></div>${rk}
   ${hist.length?hist.slice(0,15).map(w=>{const e=w.ex.find(e=>e.eid===eid);return `<div class="sess"><b>${fdate(w.start)}</b> <span class="mut">· ${e.unit}</span><div class="pills">${e.sets.map(s=>`<span>${setTxt(s,e.unit,e.unit)}</span>`).join('')}</div></div>`}).join(''):`<p class="empty">Not logged yet.</p>`}
   <div class="row" style="margin-top:16px">${canAdd?`<button class="btn pri" data-act="infoadd" data-id="${eid}">Add to workout</button>`:''}${!S.active?`<button class="btn pri" data-act="infostart" data-id="${eid}">Start workout with this</button>`:''}${x.custom?`<button class="btn ghost danger" data-act="delcustom" data-id="${eid}">Delete exercise</button>`:''}</div>`)}
@@ -486,6 +578,7 @@ document.addEventListener('click',async ev=>{
     try{const o=JSON.parse(s.slice(a1,a2+1));addMeal(p.tx||'Meal',o,p.day);try{localStorage.removeItem('liftlog.pend')}catch(e){}if(p.day)foodDay=p.day;closeSheet();tab='food';render();toast('Meal logged')}catch(e){toast('Couldn’t find the numbers in that reply')}break}
   case 'delmeal':if(await ask('Delete this meal?','Delete')){S.food[foodDay]=(S.food[foodDay]||[]).filter(m=>m.id!==b.dataset.id);saveFood(foodDay);render()}break;
   case 'side':bodySide=b.dataset.s;render();break;
+  case 'demo':openDemo=openDemo===b.dataset.id?null:b.dataset.id;drawLib();break;
   case 'muscle':openMuscle(b.dataset.m);break;
   case 'bwu':{const st=S.settings,u=b.dataset.u;if(st.bwu===u)break;if(st.bw)st.bw=r1(conv(st.bw,st.bwu,u));st.bwu=u;saveSettings();render();break}
   case 'sex':S.settings.sex=b.dataset.s;saveSettings();render();break;
