@@ -143,7 +143,7 @@ const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const LIB=[];for(const m of MUSCLES)for(const it of RAW[m].split(';')){const[n,e]=it.split('|');LIB.push({id:slug(n),name:n,muscle:m,equip:EQ[e]})}
 LIB.sort((a,b)=>a.name.localeCompare(b.name));
 
-const S={settings:{unit:'kg',rest:90,remember:true,bw:null,bwu:'kg',sex:null},custom:[],workouts:[],active:null};
+const S={settings:{unit:'kg',rest:90,remember:true,sets:3,matchSets:true,bw:null,bwu:'kg',sex:null},custom:[],workouts:[],active:null};
 let tab='workout',db=null,base='',wcol=null;
 const $=id=>document.getElementById(id);
 const main=$('main');
@@ -181,7 +181,7 @@ function setSync(t){$('sync').textContent=t}
 function lastFor(eid,skip){for(const w of S.workouts){if(w.id===skip)continue;const e=w.ex.find(x=>x.eid===eid);if(e&&e.sets.length)return{w,e}}return null}
 function unitFor(eid){const l=S.settings.remember&&lastFor(eid);return l?l.e.unit:S.settings.unit}
 function bestSet(e){let b=null,bv=-1;for(const s of e.sets){const k=e1rm(s.v||0,s.r)||s.r/1000;if(k>bv){bv=k;b=s}}return b}
-function addEx(eid){const l=lastFor(eid);S.active.ex.push({eid,unit:unitFor(eid),sets:Array.from({length:l?l.e.sets.length:3},()=>({v:null,r:null,done:false}))})}
+function addEx(eid){const l=lastFor(eid);S.active.ex.push({eid,unit:unitFor(eid),sets:Array.from({length:l&&S.settings.matchSets!==false?l.e.sets.length:(+S.settings.sets||3)},()=>({v:null,r:null,done:false}))})}
 function startWorkout(src){const h=new Date().getHours();
   S.active={id:'w'+Date.now().toString(36),name:src?src.name:(h<12?'Morning':h<17?'Afternoon':'Evening')+' workout',start:Date.now(),ex:[]};
   if(src)src.ex.forEach(e=>addEx(e.eid));
@@ -239,6 +239,7 @@ function vSettings(){const st=S.settings;
   <label class="tog"><input type="checkbox" id="remember" ${st.remember?'checked':''}> Use the unit I last used for each exercise</label></section>
   ${bodySetup()}
   <section class="card"><h3>Rest timer</h3><p class="mut">Starts automatically when you tick off a set.</p><div class="field"><select id="restsel" aria-label="Rest timer">${[0,45,60,90,120,150,180,240,300].map(s=>`<option value="${s}" ${+st.rest===s?'selected':''}>${s?mmss(s):'Off'}</option>`).join('')}</select></div></section>
+  <section class="card"><h3>Sets per exercise</h3><p class="mut">How many set rows a new exercise starts with.</p><div class="field"><select id="setsel" aria-label="Default sets">${[1,2,3,4,5,6,8,10].map(n=>`<option value="${n}" ${(+st.sets||3)===n?'selected':''}>${n} set${n>1?'s':''}</option>`).join('')}</select></div><label class="tog"><input type="checkbox" id="matchsets" ${st.matchSets!==false?'checked':''}> Use the same number as last time for exercises I've done before</label></section>
   <section class="card"><h3>Your data</h3><p class="mut">${db?'Synced to your Claude account, so it follows you across devices.':'Saved in this browser only.'} ${S.workouts.length} workouts, ${S.custom.length} custom exercises.</p>
   <div class="row" style="margin-top:12px"><button class="btn sm" data-act="export">Copy data as JSON</button><button class="btn sm" data-act="import">Import data</button><button class="btn sm ghost danger" data-act="wipe">Delete all history</button></div></section>`}
 function render(){document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===tab?'page':'false'));
@@ -425,6 +426,8 @@ document.addEventListener('input',ev=>{const t=ev.target;
   if(t.id==='pq'){pickQ=t.value;drawPick()}});
 document.addEventListener('change',ev=>{const t=ev.target;
   if(t.id==='restsel'){S.settings.rest=+t.value;saveSettings()}
+  if(t.id==='setsel'){S.settings.sets=+t.value;saveSettings()}
+  if(t.id==='matchsets'){S.settings.matchSets=t.checked;saveSettings()}
   if(t.id==='remember'){S.settings.remember=t.checked;saveSettings()}
   if(t.id==='bwin'){const n=parseFloat(t.value.replace(',','.'));S.settings.bw=n>20&&n<700?n:null;saveSettings();if(tab==='ranks')render()}});
 document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&!$('sheet').hidden)closeSheet(false)});
