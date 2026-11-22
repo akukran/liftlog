@@ -26,9 +26,9 @@ p{margin:0}.mut{color:var(--mut)}
 .top{flex:none;z-index:5;background:var(--bg);display:flex;align-items:center;gap:12px;padding:calc(12px + env(safe-area-inset-top)) max(4vw,16px) 10px;border-bottom:1px solid var(--line)}
 .top h1{font-size:32px}.top h1 b{color:var(--red)}
 .sync{margin-left:auto;font-size:13px;color:var(--mut);text-align:right}
-main{flex:1;width:100%;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:16px max(16px,calc((100% - 720px)/2)) 90px}
-.tabs{flex:none;z-index:6;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
-.tabs button{appearance:none;border:0;background:none;color:var(--mut);font:600 13px Barlow;min-height:62px;display:grid;justify-items:center;align-content:center;gap:2px;cursor:pointer}
+main{flex:1;min-height:0;width:100%;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:16px max(16px,calc((100% - 720px)/2)) 90px}
+.tabs{flex:none;z-index:6;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.tabs button{appearance:none;border:0;background:none;color:var(--mut);font:600 12px Barlow;min-height:62px;display:grid;justify-items:center;align-content:center;gap:2px;cursor:pointer}
 .tabs button[aria-current=page]{color:var(--red)}.tabs svg{width:24px;height:24px}
 .btn{appearance:none;border:0;border-radius:12px;min-height:46px;padding:0 18px;font:600 16px Barlow;cursor:pointer;background:var(--fld);color:var(--ink)}
 .btn.pri{background:var(--red);color:#fff}.btn.ghost{background:none;border:1px solid var(--line)}.btn.wide{width:100%}.btn.sm{min-height:44px;padding:0 12px;font-size:15px}
@@ -117,6 +117,12 @@ select,.field input{height:48px;border-radius:12px;border:1px solid var(--line);
 .dot{display:block;width:100%;aspect-ratio:1;border-radius:50%;background:var(--fld);border:0;padding:0}
 .dot.fut{opacity:.35}.dot.on{background:#2f7df6;box-shadow:0 0 8px #2f7df699;cursor:pointer}.dot.today{outline:2px solid var(--ink);outline-offset:1px}
 *{scrollbar-width:none}*::-webkit-scrollbar{display:none;width:0;height:0}
+.daynav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}.daynav b{font:700 24px "Barlow Condensed"}.daynav .x:disabled{opacity:.3}
+.kcal{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}.kcal b{font:700 52px/1 "Barlow Condensed"}
+.nrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;padding:10px 0 8px;border-top:1px solid var(--line);font-size:15px}.nrow:first-of-type{margin-top:12px}.nrow .meter{grid-column:1/3}.nrow>span:nth-child(2){color:var(--mut);white-space:nowrap}
+.meter.over b{background:#ff6b5e!important}
+.meal{padding:12px 0;border-top:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center}.meal p{font-size:14px;color:var(--mut)}
+textarea.food{min-height:96px;font:16px/1.45 Barlow;margin-top:10px}
 textarea{width:100%;min-height:200px;border-radius:12px;border:1px solid var(--line);background:var(--fld);color:var(--ink);font:13px/1.4 ui-monospace,monospace;padding:10px}
 @media(max-width:380px){.hd,.set{grid-template-columns:22px minmax(0,1.1fr) minmax(0,1fr) minmax(0,.85fr) 44px;gap:5px}.prev{font-size:14px}.start h2{font-size:38px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -129,6 +135,7 @@ textarea{width:100%;min-height:200px;border-radius:12px;border:1px solid var(--l
 <button data-act="tab" data-tab="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>History</button>
 <button data-act="tab" data-tab="lib"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Exercises</button>
 <button data-act="tab" data-tab="ranks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Ranks</button>
+<button data-act="tab" data-tab="food"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18a9 9 0 0 1-18 0z"/><path d="M9 7c0-2 2-2 2-4M14 7c0-2 2-2 2-4"/></svg>Food</button>
 <button data-act="tab" data-tab="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Settings</button>
 </nav>
 <div id="sheet" class="sheet" hidden><div class="panel" id="panel" role="dialog" aria-modal="true"></div></div>
@@ -155,8 +162,8 @@ const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const LIB=[];for(const m of MUSCLES)for(const it of RAW[m].split(';')){const[n,e]=it.split('|');LIB.push({id:slug(n),name:n,muscle:m,equip:EQ[e]})}
 LIB.sort((a,b)=>a.name.localeCompare(b.name));
 
-const S={settings:{unit:'kg',rest:90,remember:true,sets:3,matchSets:true,bw:null,bwu:'kg',sex:null},custom:[],workouts:[],active:null};
-let tab='workout',db=null,base='',wcol=null;
+const S={settings:{unit:'kg',rest:90,remember:true,sets:3,matchSets:true,bw:null,bwu:'kg',sex:null},custom:[],workouts:[],active:null,food:{}};
+let tab='workout',db=null,base='',wcol=null,fcol=null;
 const $=id=>document.getElementById(id);
 const main=$('main');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -174,7 +181,7 @@ const LOCALMSG='Saved on this device';
 /* ---------- persistence ---------- */
 const LS='liftlog.v1';
 function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
-function loadLocal(){try{const d=JSON.parse(localStorage.getItem(LS)||'null');if(d){S.settings={...S.settings,...d.settings};S.custom=d.custom||[];S.workouts=d.workouts||[];S.active=d.active||null}}catch(e){}}
+function loadLocal(){try{const d=JSON.parse(localStorage.getItem(LS)||'null');if(d){S.settings={...S.settings,...d.settings};S.custom=d.custom||[];S.workouts=d.workouts||[];S.active=d.active||null;S.food=d.food&&typeof d.food==="object"?d.food:{}}}catch(e){}}
 const pend={},busy={};
 function put(k,fn){pend[k]=fn;flush(k)}
 async function flush(k){if(busy[k]||!pend[k])return;busy[k]=1;const fn=pend[k];pend[k]=null;
@@ -270,14 +277,49 @@ function vSettings(){const st=S.settings;
   <label class="tog"><input type="checkbox" id="remember" ${st.remember?'checked':''}> Use the unit I last used for each exercise</label></section>
   ${bodySetup()}
   <section class="card"><h3>Rest timer</h3><p class="mut">Starts automatically when you tick off a set.</p><div class="field"><select id="restsel" aria-label="Rest timer">${[0,45,60,90,120,150,180,240,300].map(s=>`<option value="${s}" ${+st.rest===s?'selected':''}>${s?mmss(s):'Off'}</option>`).join('')}</select></div></section>
+  <section class="card"><h3>Daily food goals</h3><div class="stats" style="grid-template-columns:repeat(2,minmax(0,1fr));margin:8px 0 0">${[['kcal','Calories (kcal)'],['protein','Protein (g)'],['carbs','Carbs (g)'],['fat','Fat (g)']].map(([k,l])=>`<label class="field" style="margin:0"><span style="font-size:14px;font-weight:600">${l}</span><input inputmode="numeric" data-goal="${k}" value="${(st.goals||{})[k]??GDEF[k]}"></label>`).join('')}</div></section>
   <section class="card"><h3>Sets per exercise</h3><p class="mut">How many set rows a new exercise starts with.</p><div class="field"><select id="setsel" aria-label="Default sets">${[1,2,3,4,5,6,8,10].map(n=>`<option value="${n}" ${(+st.sets||3)===n?'selected':''}>${n} set${n>1?'s':''}</option>`).join('')}</select></div><label class="tog"><input type="checkbox" id="matchsets" ${st.matchSets!==false?'checked':''}> Use the same number as last time for exercises I've done before</label></section>
   <section class="card"><h3>Your data</h3><p class="mut">${db?'Synced to your Claude account, so it follows you across devices.':'Saved in this browser only.'} ${S.workouts.length} workouts, ${S.custom.length} custom exercises.</p>
   <div class="row" style="margin-top:12px"><button class="btn sm" data-act="export">Copy data as JSON</button><button class="btn sm" data-act="import">Import data</button><button class="btn sm ghost danger" data-act="wipe">Delete all history</button></div></section>`}
 function render(){document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===tab?'page':'false'));
-  main.innerHTML=tab==='workout'?vWorkout():tab==='history'?vHistory():tab==='lib'?vLib():tab==='ranks'?vRanks():vSettings();
+  main.innerHTML=tab==='workout'?vWorkout():tab==='history'?vHistory():tab==='lib'?vLib():tab==='ranks'?vRanks():tab==='food'?vFood():vSettings();
   if(tab==='lib')drawLib();tickElapsed()}
 function tickElapsed(){const el=$('elapsed');if(el&&S.active){const s=Math.floor((Date.now()-S.active.start)/1000);el.textContent=(s>=3600?Math.floor(s/3600)+':'+String(Math.floor(s/60)%60).padStart(2,'0')+':'+String(s%60).padStart(2,'0'):mmss(s))}}
 setInterval(tickElapsed,1000);
+
+/* ---------- food ---------- */
+const NUT=[['vitA','Vitamin A','µg',800],['vitC','Vitamin C','mg',80],['vitD','Vitamin D','µg',10],['vitE','Vitamin E','mg',12],['vitK','Vitamin K','µg',75],['b1','Thiamin (B1)','mg',1.1],['b2','Riboflavin (B2)','mg',1.4],['b3','Niacin (B3)','mg',16],['b6','Vitamin B6','mg',1.4],['folate','Folate','µg',200],['b12','Vitamin B12','µg',2.5],['calcium','Calcium','mg',800],['iron','Iron','mg',14],['magnesium','Magnesium','mg',375],['zinc','Zinc','mg',10],['potassium','Potassium','mg',2000],['phosphorus','Phosphorus','mg',700],['selenium','Selenium','µg',55],['iodine','Iodine','µg',150]];
+const MAC=[['protein','Protein','g'],['carbs','Carbs','g'],['fat','Fat','g'],['fibre','Fibre','g'],['sugar','Sugars','g'],['satfat','Sat fat','g'],['salt','Salt','g']];
+const KEYS=['kcal',...MAC.map(m=>m[0]),...NUT.map(n=>n[0])];
+const GDEF={kcal:2500,protein:160,carbs:280,fat:80};
+let foodDay=dkey(Date.now()),foodImg=null,foodBusy=false,sampleFn=null;
+const units=`Units: kcal; grams for protein, carbs, fat, fibre, sugar, satfat, salt; ${NUT.map(n=>n[0]+' '+n[2]).join(', ')}.`;
+const prompt1=t=>`Estimate the nutrition of this food${foodImg?' (a photo of it is attached)':''}. Assume typical UK portion sizes where amounts aren't given. Food: ${t}\nReturn JSON only, no other text: {"items":[{"name":"","qty":"","kcal":0}],"totals":{${KEYS.map(k=>`"${k}":0`).join(',')}}}. ${units}`;
+const prompt2=t=>`Estimate the nutrition of what I ate: ${t}. Assume typical UK portions where amounts aren't given. Give a short table per item (kcal, protein, carbs, fat), then the total vitamins and minerals. On the very last line write LIFTLOG followed by one line of JSON with the totals for everything: {"totals":{${KEYS.map(k=>`"${k}":0`).join(',')}}}. ${units}`;
+const r0=x=>x>=100?Math.round(x):x>=10?Math.round(x*10)/10:Math.round(x*100)/100;
+function dayTotals(k){const t={};KEYS.forEach(x=>t[x]=0);(S.food[k]||[]).forEach(m=>KEYS.forEach(x=>t[x]+=+(m.n&&m.n[x])||0));return t}
+function saveFood(k){saveLocal();if(db&&fcol)put('f'+k,()=>(S.food[k]&&S.food[k].length)?fcol.doc(k).set({meals:S.food[k]}):fcol.doc(k).delete())}
+function addMeal(text,res,day){const tt=(res&&res.totals)||res||{};const n={};KEYS.forEach(k=>n[k]=Math.max(0,+tt[k]||0));if(!n.kcal&&!n.protein&&!n.carbs&&!n.fat)throw new Error('empty');
+  const d=day||foodDay;(S.food[d]=S.food[d]||[]).push({id:'m'+Date.now().toString(36),t:Date.now(),text,items:Array.isArray(res.items)?res.items.slice(0,30):[],n});saveFood(d)}
+async function analyse(){const el=$('foodtxt'),txt=(el.value||'').trim();if(!txt&&!foodImg){toast('Describe your food first');return}
+  foodBusy=true;render();$('foodtxt').value=txt;
+  try{const opts={modelTier:'default'};if(foodImg)opts.images=[foodImg];const res=await sampleFn.fn.json(prompt1(txt||'See the photo'),opts);addMeal(txt||'Photo meal',res);foodImg=null;foodBusy=false;render();toast('Meal logged')}
+  catch(e){foodBusy=false;render();$('foodtxt').value=txt;toast(e&&e.code==='rate_limited'?'Claude is busy, try again shortly':'Couldn’t work that out, try more detail')}}
+function vFood(){const G={...GDEF,...(S.settings.goals||{})};const t=dayTotals(foodDay),meals=S.food[foodDay]||[],today=dkey(Date.now());
+  const lbl=foodDay===today?'Today':fdate(new Date(foodDay+'T12:00').getTime());
+  const bar=(v,g,c,ov=true)=>`<span class="meter${ov&&v>g*1.05?' over':''}" style="--tc:${c}"><b style="width:${Math.min(100,g?100*v/g:0)}%"></b></span>`;
+  const MC={protein:'#4ea1ff',carbs:'#2fa9a2',fat:'#d6a21c'};
+  return `<h2 class="sub">Food</h2><div class="daynav"><button class="x" data-act="fd" data-d="-1" aria-label="Previous day">‹</button><b>${lbl}</b><button class="x" data-act="fd" data-d="1" ${foodDay>=today?'disabled':''} aria-label="Next day">›</button></div>
+  <section class="card"><div class="kcal"><b>${Math.round(t.kcal)}</b><span class="mut">/ ${G.kcal} kcal</span></div>${bar(t.kcal,G.kcal,'#2f7df6')}
+  ${MAC.slice(0,3).map(([k,l,u])=>`<div class="nrow"><span><b>${l}</b></span><span>${r0(t[k])} / ${G[k]} ${u}</span>${bar(t[k],G[k],MC[k])}</div>`).join('')}
+  <div class="pills" style="margin-top:12px">${MAC.slice(3).map(([k,l,u])=>`<span>${l} ${r0(t[k])}${u}</span>`).join('')}</div></section>
+  <section class="card"><h3>Add food</h3><p class="mut" style="font-size:14px">Describe what you ate${sampleFn&&sampleFn.img?' or add a photo':''}, with amounts if you know them. Claude works out the macros and micros.</p>
+  <textarea id="foodtxt" class="food" placeholder="e.g. 200g chicken breast, 150g cooked rice, 1 tbsp olive oil, a banana"></textarea>
+  ${sampleFn?`${sampleFn.img?`<label class="btn sm ghost" style="display:inline-flex;align-items:center;margin-top:10px;cursor:pointer"><input type="file" id="foodimg" accept="image/*" hidden>${foodImg?'Photo added ✓':'Add photo'}</label>`:''}<button class="btn pri wide" data-act="analyse" style="margin-top:10px" ${foodBusy?'disabled':''}>${foodBusy?'Working it out…':'Analyse with Claude'}</button>`
+  :`<div class="row" style="margin-top:10px"><button class="btn pri" data-act="askclaude">Ask Claude</button><button class="btn" data-act="pastefood">Paste Claude’s reply</button></div><p class="note">Opens Claude with your food filled in. When it answers, copy the whole reply, come back and tap “Paste Claude’s reply” to log it.</p>`}</section>
+  <section class="card"><h3>Meals</h3>${meals.length?meals.map(m=>`<div class="meal"><div><b>${esc(m.text.length>80?m.text.slice(0,80)+'…':m.text)}</b><p>${Math.round(m.n.kcal||0)} kcal · P ${r0(m.n.protein||0)}g · C ${r0(m.n.carbs||0)}g · F ${r0(m.n.fat||0)}g</p></div><button class="btn sm ghost danger" data-act="delmeal" data-id="${m.id}">Delete</button></div>`).join(''):`<p class="empty">Nothing logged ${foodDay===today?'yet today':'on this day'}.</p>`}</section>
+  <section class="card"><h3>Vitamins and minerals</h3><p class="mut" style="font-size:14px">Share of the daily reference intake (UK/EU NRV).</p>${NUT.map(([k,l,u,g])=>`<div class="nrow"><span>${l}</span><span>${r0(t[k])} ${u} · ${Math.round(100*t[k]/g)}%</span>${bar(t[k],g,'#2fa9a2',false)}</div>`).join('')}<p class="note">These are Claude’s estimates from typical food data: good for spotting gaps, not exact.</p></section>`}
+(async()=>{const c=window.claude;if(!c||!c.use)return;try{const s=await c.use('sample');if(!s)return;let img=false;try{img=!!(await s.limits()).images}catch(e){}sampleFn={fn:s,img};if(tab==='food')render()}catch(e){}})();
 
 /* ---------- ranks ---------- */
 // Advanced-lifter standards (male). Number = est. 1RM ÷ bodyweight (dumbbells per hand); rN = reps; bN = (bodyweight + added) 1RM ÷ bodyweight.
@@ -432,13 +474,21 @@ document.addEventListener('click',async ev=>{
   case 'hv':histView=b.dataset.v;render();break;
   case 'cy':calY+=+b.dataset.d;render();break;
   case 'day':openDay(b.dataset.d);break;
+  case 'fd':{const d=new Date(foodDay+'T12:00');d.setDate(d.getDate()+(+b.dataset.d));foodDay=dkey(d.getTime());render();break}
+  case 'analyse':analyse();break;
+  case 'askclaude':{const tx=($('foodtxt').value||'').trim();if(!tx){toast('Describe your food first');break}try{localStorage.setItem('liftlog.pend',JSON.stringify({tx,day:foodDay}))}catch(e){}
+    const a=document.createElement('a');a.href='https://claude.ai/new?q='+encodeURIComponent(prompt2(tx));a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();break}
+  case 'pastefood':openSheet(`<div class="ph"><h2>Paste reply</h2><button class="x" data-act="close" aria-label="Close">✕</button></div><p class="mut" style="margin-bottom:10px">Copy Claude’s whole reply and paste it here.</p><textarea id="pastet" placeholder="Paste here"></textarea><button class="btn pri wide" data-act="dopaste" style="margin-top:12px">Log meal</button>`);break;
+  case 'dopaste':{const raw=$('pastet').value,ix=raw.lastIndexOf('LIFTLOG'),s=ix>=0?raw.slice(ix):raw,a1=s.indexOf('{'),a2=s.lastIndexOf('}');let p={};try{p=JSON.parse(localStorage.getItem('liftlog.pend')||'{}')}catch(e){}
+    try{const o=JSON.parse(s.slice(a1,a2+1));addMeal(p.tx||'Meal',o,p.day);try{localStorage.removeItem('liftlog.pend')}catch(e){}if(p.day)foodDay=p.day;closeSheet();tab='food';render();toast('Meal logged')}catch(e){toast('Couldn’t find the numbers in that reply')}break}
+  case 'delmeal':if(await ask('Delete this meal?','Delete')){S.food[foodDay]=(S.food[foodDay]||[]).filter(m=>m.id!==b.dataset.id);saveFood(foodDay);render()}break;
   case 'muscle':openMuscle(b.dataset.m);break;
   case 'bwu':{const st=S.settings,u=b.dataset.u;if(st.bwu===u)break;if(st.bw)st.bw=r1(conv(st.bw,st.bwu,u));st.bwu=u;saveSettings();render();break}
   case 'sex':S.settings.sex=b.dataset.s;saveSettings();render();break;
   case 'close':closeSheet(false);break;
   case 'ok':closeSheet(true);break;
   case 'setunit':S.settings.unit=b.dataset.u;saveSettings();render();break;
-  case 'export':{const t=JSON.stringify({workouts:S.workouts,custom:S.custom,settings:S.settings},null,1);
+  case 'export':{const t=JSON.stringify({workouts:S.workouts,custom:S.custom,settings:S.settings,food:S.food},null,1);
     try{await navigator.clipboard.writeText(t);toast('Copied to clipboard')}catch(e){openSheet(`<div class="ph"><h2>Your data</h2><button class="x" data-act="close" aria-label="Close">✕</button></div><textarea readonly>${esc(t)}</textarea>`)}break}
   case 'import':openSheet(`<div class="ph"><h2>Import data</h2><button class="x" data-act="close" aria-label="Close">✕</button></div><p class="mut" style="margin-bottom:10px">Paste data copied with “Copy data as JSON” from another copy of Lift Log. Workouts are merged; nothing is deleted.</p><textarea id="impt" placeholder="Paste here"></textarea><button class="btn pri wide" data-act="doimport" style="margin-top:12px">Import</button>`);break;
   case 'doimport':{let d;try{d=JSON.parse($('impt').value)}catch(e){toast('That isn’t valid data');break}
@@ -446,6 +496,7 @@ document.addEventListener('click',async ev=>{
     S.workouts=[...S.workouts,...nw].sort((a,b)=>b.start-a.start);nw.forEach(saveWorkout);
     const cs=Array.isArray(d.custom)?d.custom.filter(x=>x&&x.id&&!S.custom.some(c=>c.id===x.id)):[];if(cs.length){S.custom.push(...cs);saveCustom()}
     if(d.settings&&!S.settings.bw){S.settings={...S.settings,...d.settings};saveSettings()}
+    if(d.food&&typeof d.food==="object")for(const k in d.food)if(!S.food[k]&&Array.isArray(d.food[k])){S.food[k]=d.food[k];saveFood(k)}
     saveLocal();closeSheet();render();toast(`Imported ${nw.length} workout${nw.length===1?'':'s'}`);break}
   case 'wipe':if(await ask(`Delete all ${S.workouts.length} workouts? This can't be undone.`,'Delete all')){const ids=S.workouts.map(w=>w.id);S.workouts=[];ids.forEach(delWorkout);render()}break;
   case 'rest+':restEnd+=15000;restTot=Math.max(restTot,Math.ceil((restEnd-Date.now())/1000));tickRest();break;
@@ -462,6 +513,8 @@ document.addEventListener('change',ev=>{const t=ev.target;
   if(t.id==='restsel'){S.settings.rest=+t.value;saveSettings()}
   if(t.id==='setsel'){S.settings.sets=+t.value;saveSettings()}
   if(t.id==='matchsets'){S.settings.matchSets=t.checked;saveSettings()}
+  if(t.dataset.goal){const n=parseInt(t.value,10);S.settings.goals={...GDEF,...(S.settings.goals||{})};if(n>0)S.settings.goals[t.dataset.goal]=n;saveSettings()}
+  if(t.id==='foodimg'){const v=$('foodtxt').value;foodImg=t.files[0]||null;render();$('foodtxt').value=v}
   if(t.id==='remember'){S.settings.remember=t.checked;saveSettings()}
   if(t.id==='bwin'){const n=parseFloat(t.value.replace(',','.'));S.settings.bw=n>20&&n<700?n:null;saveSettings();if(tab==='ranks')render()}});
 document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&!$('sheet').hidden)closeSheet(false)});
@@ -486,6 +539,7 @@ try{if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|
     if(ra&&!fin.has(ra.id)&&(!S.active||(ra.updated||0)>(S.active.updated||0)))S.active=ra;
     if(S.active&&fin.has(S.active.id))S.active=null;
     saveActive();saveLocal();setSync('Synced');
+    try{fcol=d.doc(B+'/food').collection('days');const fs=await fcol.get();const rf={};fs.docs.filter(x=>x.exists).forEach(x=>{rf[x.id]=cl(x.data()).meals||[]});for(const k in S.food)if(!rf[k])saveFood(k);S.food={...S.food,...rf};saveLocal()}catch(e){}
     const f=document.activeElement;if(!(f&&f.tagName==='INPUT'))render();
   }catch(e){setSync(LOCALMSG)}})();
 }
