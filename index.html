@@ -123,6 +123,7 @@ select,.field input{height:48px;border-radius:12px;border:1px solid var(--line);
 .meter.over b{background:#ff6b5e!important}
 .meal{padding:12px 0;border-top:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center}.meal p{font-size:14px;color:var(--mut)}
 textarea.food{min-height:96px;font:16px/1.45 Barlow;margin-top:10px}
+.bodies.one{grid-template-columns:minmax(0,1fr)}.bodies.one svg{max-width:270px}
 textarea{width:100%;min-height:200px;border-radius:12px;border:1px solid var(--line);background:var(--fld);color:var(--ink);font:13px/1.4 ui-monospace,monospace;padding:10px}
 @media(max-width:380px){.hd,.set{grid-template-columns:22px minmax(0,1.1fr) minmax(0,1fr) minmax(0,.85fr) 44px;gap:5px}.prev{font-size:14px}.start h2{font-size:38px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -377,16 +378,18 @@ function figure(side,M){const c=m=>M[m]?TIERS[tierIx(M[m].s)][2]:'var(--fld)';co
    +g('Glutes','<ellipse cx="88" cy="192" rx="13" ry="16"/><ellipse cx="112" cy="192" rx="13" ry="16"/>')+g('Hamstrings','<ellipse cx="87" cy="244" rx="12.5" ry="38"/><ellipse cx="113" cy="244" rx="12.5" ry="38"/>')
    +g('Calves','<ellipse cx="86" cy="326" rx="10" ry="30"/><ellipse cx="114" cy="326" rx="10" ry="30"/>');
   return `<figure><svg viewBox="20 0 160 400" role="img" aria-label="${side} muscles">${base}${body}</svg><figcaption>${side==='front'?'Front':'Back'}</figcaption></figure>`}
+let bodySide='front';
+function bodyView(M){return `<div style="display:flex;justify-content:center;margin-top:14px"><div class="seg">${[['front','Front'],['back','Back']].map(([k,l])=>`<button data-act="side" data-s="${k}" aria-pressed="${bodySide===k}" style="min-width:84px">${l}</button>`).join('')}</div></div><div class="bodies one">${figure(bodySide,M)}</div>`}
 function bodySetup(){const st=S.settings;return `<section class="card"><h3>Your body</h3><p class="mut">Ranks compare your lifts with your bodyweight, so they need these two.</p>
   <div class="field"><label for="bwin">Bodyweight</label><div style="display:flex;gap:8px;align-items:center"><input id="bwin" inputmode="decimal" value="${st.bw??''}" placeholder="e.g. 75" style="flex:1"><div class="seg">${['kg','lb'].map(k=>`<button data-act="bwu" data-u="${k}" aria-pressed="${st.bwu===k}">${k}</button>`).join('')}</div></div></div>
   <div class="field"><label>Sex (for strength standards)</label><div class="seg" style="width:max-content">${[['m','Male'],['f','Female']].map(([k,l])=>`<button data-act="sex" data-s="${k}" aria-pressed="${st.sex===k}" style="min-width:90px">${l}</button>`).join('')}</div></div></section>`}
 function vRanks(){if(!bwKg()||!S.settings.sex)return `<h2 class="sub">Ranks</h2>`+bodySetup();
   const{ex,M}=rankAll();const ms=Object.keys(M);
-  if(!ms.length)return `<h2 class="sub">Ranks</h2><div class="card">${figure('front',{})}</div><div class="card empty">Finish a workout and your muscles start ranking up here.</div>`;
+  if(!ms.length)return `<h2 class="sub">Ranks</h2><div class="card">${bodyView({})}</div><div class="card empty">Finish a workout and your muscles start ranking up here.</div>`;
   const main=MUSCLES.filter(m=>m!=='Full body'&&M[m]);const ov=main.length?main.reduce((a,m)=>a+M[m].s,0)/main.length:0;const oi=tierIx(ov),ot=TIERS[oi];
   const weak=main.slice().sort((a,b)=>M[a].s-M[b].s)[0];
   return `<h2 class="sub">Ranks</h2><section class="card"><div class="big-tier"><div class="medal" style="--tc:${ot[2]}">${ot[0][0]}</div><div><p class="mut" style="font-size:14px">Overall</p><h3 style="font-size:36px;margin:0">${ot[0]}</h3><p class="mut">${LEVEL[oi]} · ${Object.keys(ex).length} ranked exercises${weak&&main.length>2?` · weakest: ${weak}`:''}</p></div></div>
-  <div class="bodies">${figure('front',M)}${figure('back',M)}</div>
+  ${bodyView(M)}
   <div class="legend">${TIERS.map(t=>`<span class="tier" style="--tc:${t[2]};font-weight:500"><i></i>${t[0]}</span>`).join('')}<span class="tier" style="--tc:var(--fld);font-weight:500"><i></i>Not trained</span></div></section>
   <section class="card"><h3>By muscle</h3>${MUSCLES.map(m=>{const r=M[m];if(!r)return `<div class="mrow" style="cursor:default"><span class="nm">${m}</span><span class="mut" style="font-size:14px">Not trained yet</span></div>`;
     const i=tierIx(r.s),t=TIERS[i],nx=TIERS[i+1],p=nx?Math.min(100,Math.max(4,100*(r.s-t[1])/(nx[1]-t[1]))):100;
@@ -482,6 +485,7 @@ document.addEventListener('click',async ev=>{
   case 'dopaste':{const raw=$('pastet').value,ix=raw.lastIndexOf('LIFTLOG'),s=ix>=0?raw.slice(ix):raw,a1=s.indexOf('{'),a2=s.lastIndexOf('}');let p={};try{p=JSON.parse(localStorage.getItem('liftlog.pend')||'{}')}catch(e){}
     try{const o=JSON.parse(s.slice(a1,a2+1));addMeal(p.tx||'Meal',o,p.day);try{localStorage.removeItem('liftlog.pend')}catch(e){}if(p.day)foodDay=p.day;closeSheet();tab='food';render();toast('Meal logged')}catch(e){toast('Couldn’t find the numbers in that reply')}break}
   case 'delmeal':if(await ask('Delete this meal?','Delete')){S.food[foodDay]=(S.food[foodDay]||[]).filter(m=>m.id!==b.dataset.id);saveFood(foodDay);render()}break;
+  case 'side':bodySide=b.dataset.s;render();break;
   case 'muscle':openMuscle(b.dataset.m);break;
   case 'bwu':{const st=S.settings,u=b.dataset.u;if(st.bwu===u)break;if(st.bw)st.bw=r1(conv(st.bw,st.bwu,u));st.bwu=u;saveSettings();render();break}
   case 'sex':S.settings.sex=b.dataset.s;saveSettings();render();break;
