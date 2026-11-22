@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="theme-color" content="#111317">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Lift Log</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -18,14 +18,16 @@
    LAYOUT: one phone-width column, sticky header, bottom tab bar, sheets slide up from the bottom. */
 :root,:root[data-theme=light],:root[data-theme=dark]{color-scheme:dark;--bg:#111317;--card:#1b1e24;--ink:#eef1f5;--mut:#929aa6;--line:#2a2f37;--fld:#252931;--red:#2f7df6;--blue:#4ea1ff;--doneb:#13243b}
 *{box-sizing:border-box;min-width:0}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Barlow,system-ui,sans-serif;overflow-x:clip;padding-bottom:calc(150px + env(safe-area-inset-bottom))}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none;touch-action:manipulation}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Barlow,system-ui,sans-serif;display:flex;flex-direction:column;height:100dvh;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+input,textarea{-webkit-user-select:text;user-select:text}
 h1,h2,h3{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;line-height:1.05;margin:0}
 p{margin:0}.mut{color:var(--mut)}
-.top{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;align-items:center;gap:12px;padding:calc(12px + env(safe-area-inset-top)) max(4vw,16px) 10px;border-bottom:1px solid var(--line)}
+.top{flex:none;z-index:5;background:var(--bg);display:flex;align-items:center;gap:12px;padding:calc(12px + env(safe-area-inset-top)) max(4vw,16px) 10px;border-bottom:1px solid var(--line)}
 .top h1{font-size:32px}.top h1 b{color:var(--red)}
 .sync{margin-left:auto;font-size:13px;color:var(--mut);text-align:right}
-main{max-width:720px;margin:0 auto;padding:16px max(4vw,16px) 24px}
-.tabs{position:fixed;bottom:0;left:0;right:0;z-index:6;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+main{flex:1;width:100%;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:16px max(16px,calc((100% - 720px)/2)) 90px}
+.tabs{flex:none;z-index:6;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
 .tabs button{appearance:none;border:0;background:none;color:var(--mut);font:600 13px Barlow;min-height:62px;display:grid;justify-items:center;align-content:center;gap:2px;cursor:pointer}
 .tabs button[aria-current=page]{color:var(--red)}.tabs svg{width:24px;height:24px}
 .btn{appearance:none;border:0;border-radius:12px;min-height:46px;padding:0 18px;font:600 16px Barlow;cursor:pointer;background:var(--fld);color:var(--ink)}
@@ -80,7 +82,7 @@ select,.field input{height:48px;border-radius:12px;border:1px solid var(--line);
 .card h3{font-size:24px;margin-bottom:6px}
 .sheet{position:fixed;inset:0;z-index:20;background:#0008;display:flex;align-items:flex-end}
 .sheet[hidden]{display:none}
-.panel{background:var(--bg);width:100%;max-width:720px;margin:0 auto;max-height:90vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px max(4vw,16px) calc(18px + env(safe-area-inset-bottom));animation:up .22s ease-out}
+.panel{background:var(--bg);width:100%;max-width:720px;margin:0 auto;max-height:90dvh;overflow:auto;overscroll-behavior:contain;border-radius:20px 20px 0 0;padding:18px max(4vw,16px) calc(18px + env(safe-area-inset-bottom));animation:up .22s ease-out}
 @keyframes up{from{transform:translateY(40px);opacity:0}}
 .ph{display:flex;align-items:center;gap:10px;margin-bottom:12px}.ph h2{font-size:30px;flex:1}
 .x{width:44px;height:44px;border-radius:50%;border:0;background:var(--fld);color:var(--ink);font-size:18px;cursor:pointer}
@@ -114,6 +116,7 @@ select,.field input{height:48px;border-radius:12px;border:1px solid var(--line);
 .wd{font:600 11px Barlow;color:var(--mut);text-align:center}
 .dot{display:block;width:100%;aspect-ratio:1;border-radius:50%;background:var(--fld);border:0;padding:0}
 .dot.fut{opacity:.35}.dot.on{background:#2f7df6;box-shadow:0 0 8px #2f7df699;cursor:pointer}.dot.today{outline:2px solid var(--ink);outline-offset:1px}
+*{scrollbar-width:none}*::-webkit-scrollbar{display:none;width:0;height:0}
 textarea{width:100%;min-height:200px;border-radius:12px;border:1px solid var(--line);background:var(--fld);color:var(--ink);font:13px/1.4 ui-monospace,monospace;padding:10px}
 @media(max-width:380px){.hd,.set{grid-template-columns:22px minmax(0,1.1fr) minmax(0,1fr) minmax(0,.85fr) 44px;gap:5px}.prev{font-size:14px}.start h2{font-size:38px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -194,7 +197,7 @@ function addEx(eid){const l=lastFor(eid);S.active.ex.push({eid,unit:unitFor(eid)
 function startWorkout(src){const h=new Date().getHours();
   S.active={id:'w'+Date.now().toString(36),name:src?src.name:(h<12?'Morning':h<17?'Afternoon':'Evening')+' workout',start:Date.now(),ex:[]};
   if(src)src.ex.forEach(e=>addEx(e.eid));
-  saveActive();tab='workout';render();scrollTo(0,0);if(!src)openPicker()}
+  saveActive();tab='workout';render();main.scrollTo(0,0);if(!src)openPicker()}
 let toastT;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2000)}
 
 /* ---------- views ---------- */
@@ -389,7 +392,7 @@ document.addEventListener('click',async ev=>{
   const b=ev.target.closest('[data-act]');if(!b||b.disabled)return;
   const a=b.dataset.act,ci=b.closest('[data-i]'),i=ci?+ci.dataset.i:-1,cj=b.closest('[data-j]'),j=cj?+cj.dataset.j:-1,A=S.active;
   switch(a){
-  case 'tab':tab=b.dataset.tab;render();scrollTo(0,0);break;
+  case 'tab':tab=b.dataset.tab;render();main.scrollTo(0,0);break;
   case 'start':startWorkout(null);break;
   case 'repeat':{if(A&&!await ask('You already have a workout in progress. Replace it?','Replace'))break;const w=S.workouts.find(w=>w.id===b.dataset.id);if(w){closeSheet();startWorkout(w)}break}
   case 'add':openPicker();break;
@@ -409,7 +412,7 @@ document.addEventListener('click',async ev=>{
     const left=A.ex.reduce((n,e)=>n+e.sets.filter(s=>!s.done).length,0);
     if(left&&!await ask(`${left} set${left>1?'s are':' is'} not ticked off and won't be saved. Finish anyway?`,'Finish'))break;
     const w={id:A.id,name:A.name.trim()||'Workout',start:A.start,end:Date.now(),ex};
-    S.workouts=[w,...S.workouts.filter(x=>x.id!==w.id)].sort((x,y)=>y.start-x.start);S.active=null;saveWorkout(w);saveActive();stopRest();tab='history';render();scrollTo(0,0);toast('Workout saved');break}
+    S.workouts=[w,...S.workouts.filter(x=>x.id!==w.id)].sort((x,y)=>y.start-x.start);S.active=null;saveWorkout(w);saveActive();stopRest();tab='history';render();main.scrollTo(0,0);toast('Workout saved');break}
   case 'delw':if(await ask('Delete this workout from your history?','Delete')){const id=b.dataset.id;S.workouts=S.workouts.filter(w=>w.id!==id);delWorkout(id);render()}break;
   case 'info':openInfo(b.dataset.id);break;
   case 'infoadd':addEx(b.dataset.id);saveActive();closeSheet();tab='workout';render();toast('Added to workout');break;
@@ -463,6 +466,8 @@ document.addEventListener('change',ev=>{const t=ev.target;
   if(t.id==='bwin'){const n=parseFloat(t.value.replace(',','.'));S.settings.bw=n>20&&n<700?n:null;saveSettings();if(tab==='ranks')render()}});
 document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&!$('sheet').hidden)closeSheet(false)});
 
+document.addEventListener('gesturestart',e=>e.preventDefault());
+document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});
 /* ---------- start ---------- */
 loadLocal();render();setSync(LOCALMSG);
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}catch(e){}
